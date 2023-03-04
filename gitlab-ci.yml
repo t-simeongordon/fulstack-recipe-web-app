@@ -1,0 +1,43 @@
+image: node:16-alpine
+
+stages:
+  - build
+  - test
+  - deploy
+
+cache:
+  paths:
+    - node_modules/
+
+variables:
+  DB_NAME: "root"
+  DB_USER: "password"
+  DB_PASSWORD: "admin"
+  DB_HOST: "password"
+
+before_script:
+  - npm install
+
+build:
+  stage: build
+  script:
+    - npm run build
+
+test:
+  stage: test
+  services:
+    - name: mongo
+      alias: mongodb
+      image: mongo:latest
+    - name: mongo-express
+      alias: mongo-express
+      image: mongo-express:latest
+      ports:
+        - 8081:8081
+  script:
+    - npm run test
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Deploy"

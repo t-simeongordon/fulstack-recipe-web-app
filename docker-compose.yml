@@ -1,0 +1,47 @@
+version: '3'
+services:
+  recipe-book-api:
+    build:
+      context: ./api
+    ports:
+      - "3080:3080"
+    container_name: recipe-book-api
+    volumes:
+       - ./api:/usr/src/app/api
+  recipe-book-ui:
+    build:
+      context: ./ui
+    ports:
+      - "3000:3000"
+    container_name: recipe-book-ui
+    stdin_open: true
+    volumes:
+       - ./ui:/usr/src/app/ui
+  mongo:
+    image: mongo:5.0
+    container_name: mongo
+    environment:
+        - MONGO_INITDB_ROOT_USERNAME=${MONGO_DB_USER}
+        - MONGO_INITDB_ROOT_PASSWORD=${MONGO_DB_PWD}
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./database/db:/data/db
+      - ./database/dev.archive:/Databases/dev.archive
+      - ./database/production:/Databases/production
+  mongo-express:
+    image: mongo-express
+    container_name: mexpress
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_DB_USER}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_DB_PWD}
+      - ME_CONFIG_MONGODB_URL=${MONGO_XP_URL}
+      - ME_CONFIG_BASICAUTH_USERNAME=${MONGO_XP_USER}
+      - ME_CONFIG_BASICAUTH_PASSWORD=${MONGO_XP_PWD}
+    links:
+      - mongo
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+######## Other containers #########
